@@ -10,20 +10,21 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-@WebServlet("/login")
+@WebServlet({"/login", "/login.html"})
 public class LoginServlet extends HttpServlet {
     final static String USERNAME = "admin";
     final static String PASSWORD = "12345";
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String username = req.getParameter("username");
-        String password = req.getParameter("password");
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String username = request.getParameter("username");
+        String password = request.getParameter("password");
 
         if (USERNAME.equals(username) && PASSWORD.equals(password)) {
             Cookie usernameCookie = new Cookie("username", username);
+            response.addCookie(usernameCookie);
 
-            resp.setContentType("text/html;charset=UTF-8");
-            try (PrintWriter out = resp.getWriter()) {
+            response.setContentType("text/html;charset=UTF-8");
+            try (PrintWriter out = response.getWriter()) {
 
                 out.println("<!DOCTYPE html>");
                 out.println("<html>");
@@ -38,8 +39,16 @@ public class LoginServlet extends HttpServlet {
                 out.println("</html>");
             }
         } else {
-            resp.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Lo sentimos no esta autorizado para ingresar a esta página!");
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Lo sentimos no esta autorizado para ingresar a esta página!");
         }
     }
+
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        getServletContext().getRequestDispatcher("/cookie-session/login.jsp").forward(request, response);
+    }
+
+
+
 }
 
